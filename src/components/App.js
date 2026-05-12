@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Provider } from 'react-redux';
+import { Provider, useSelector, useDispatch } from 'react-redux';
 import store from '../redux/store';
 import Profile from './Profile';
 import Education from './Education';
@@ -9,29 +10,25 @@ import Social from './Social';
 import Navigation from './Navigation';
 import ProgressIndicator from './ProgressIndicator';
 import ResumePreview from './ResumePreview';
+import { setCurrentStep } from '../redux/actions';
 import './../styles/App.css';
 
-const App = () => {
+const AppContent = () => {
   const [showPreview, setShowPreview] = React.useState(false);
-  const [currentStep, setCurrentStep] = React.useState(1);
-
-  React.useEffect(() => {
-    const unsubscribe = store.subscribe(() => {
-      const state = store.getState();
-      setCurrentStep(state.currentStep);
-    });
-    return () => unsubscribe();
-  }, []);
+  const currentStep = useSelector(state => state.currentStep);
+  const dispatch = useDispatch();
 
   const handleSave = () => {
     // Save functionality - can be extended to save to database
+    // Save to localStorage for now
+    // You can replace this with an API call to save to a database
     const state = store.getState();
     localStorage.setItem('resumeData', JSON.stringify(state));
   };
 
   const handleNext = () => {
     if (currentStep < 5) {
-      store.dispatch({ type: 'SET_CURRENT_STEP', payload: currentStep + 1 });
+      dispatch(setCurrentStep(currentStep + 1));
     } else {
       setShowPreview(true);
     }
@@ -41,7 +38,7 @@ const App = () => {
     if (showPreview) {
       setShowPreview(false);
     } else if (currentStep > 1) {
-      store.dispatch({ type: 'SET_CURRENT_STEP', payload: currentStep - 1 });
+      dispatch(setCurrentStep(currentStep - 1));
     }
   };
 
@@ -53,7 +50,6 @@ const App = () => {
     if (showPreview) {
       return <ResumePreview onEdit={handleEditFromPreview} />;
     }
-
     switch (currentStep) {
       case 1:
         return <Profile />;
@@ -71,24 +67,28 @@ const App = () => {
   };
 
   return (
-    <Provider store={store}>
-      <div className="app">
-        <div className="header">
-          <h1>RESUME GENERATOR</h1>
-        </div>
-        {!showPreview && <ProgressIndicator />}
-        <div className="main-content">
-          {renderStep()}
-        </div>
-        {!showPreview && <Navigation onSave={handleSave} onNext={handleNext} onBack={handleBack} />}
-        {showPreview && (
-          <div className="preview-navigation">
-            <button onClick={handleBack} className="btn-link">BACK</button>
-          </div>
-        )}
+    <div className="app">
+      <div className="header">
+        <h1>RESUME GENERATOR</h1>
       </div>
-    </Provider>
+      {!showPreview && <ProgressIndicator />}
+      <div className="main-content">
+        {renderStep()}
+      </div>
+      {!showPreview && <Navigation onSave={handleSave} onNext={handleNext} onBack={handleBack} />}
+      {showPreview && (
+        <div className="preview-navigation">
+          <button onClick={handleBack} className="btn-link">BACK</button>
+        </div>
+      )}
+    </div>
   );
 };
+
+const App = () => (
+  <Provider store={store}>
+    <AppContent />
+  </Provider>
+);
 
 export default App;

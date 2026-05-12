@@ -86,7 +86,7 @@ const Education = () => {
       </div>
       <div className="button-group">
         <button
-          id="delete"
+          id="delete_education"
           onClick={() => education.length > 0 && handleDelete(education.length - 1)}
           className="btn-delete"
           disabled={education.length === 0}

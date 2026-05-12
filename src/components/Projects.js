@@ -72,7 +72,7 @@ const Projects = () => {
       </div>
       <div className="button-group">
         <button
-          id="delete"
+          id="delete_project"
           onClick={() => projects.length > 0 && handleDelete(projects.length - 1)}
           className="btn-delete"
           disabled={projects.length === 0}
